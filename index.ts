@@ -24,10 +24,13 @@ app.post('/login',
 
     const { username, password } = req.body
     // Use username and password to create token.
-
-    return res.status(200).json({
-      message: 'Login succesfully',
-    })
+    if(username == req.username&&password == req.password)
+      return res.status(200).json({
+        message: 'Login succesfully', "token": req.token
+      })
+    else{
+      res.status(400).json({"message": "Invalid username or password"})
+    }
   })
 
 app.post('/register',
