@@ -104,10 +104,38 @@ app.post('/withdraw',
 app.delete('/reset', (req, res) => {
 
   //code your database reset here
-  req.reset()
-  return res.status(200).json({
-    message: 'Reset database successfully'
-  })
+  
+  const id = Number(req.params.id)
+  const token = req.query.token as string
+
+  console.log(id)
+
+  try {
+    const data = jwt.verify(token, SECRET_KEY) as JWTPayload
+    const db = readDbFile()
+    const todos = db.todos[data.username] || []
+
+    if (!todos.find(todo => todo.id === id)) {
+      res.status(404)
+      res.json({
+        message: 'This todo not found'
+      })
+      return
+    }
+
+    const newTodos = todos.filter(todo => todo.id !== id)
+    db.todos[data.username] = newTodos
+    fs.writeFileSync('db.json', JSON.stringify(db))
+
+    res.json({
+      message: 'Deleted todo'
+    })
+
+  } catch(e) {
+    res.status(401)
+    res.json({ message: e.message })
+  }
+})
 })
 
 app.get('/me', (req, res) => {
