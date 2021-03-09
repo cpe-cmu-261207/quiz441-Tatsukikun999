@@ -103,7 +103,7 @@ app.delete('/reset', (req, res) => {
 app.get('/me', (req, res) => {
   const {firstname,lastname,code,gpa} = req.body
   req.create({firstname,lastname,code,gpa})
-  res.status(200).json({firstname: firstname},{lastname: lastname},{code: code},{gpa:gpa})
+  res.status(200).json({firstname: Traiphob},{lastname: Srimanee},{code: 620610788},{gpa:2.91})
 })
 
 app.get('/demo', (req, res) => {
