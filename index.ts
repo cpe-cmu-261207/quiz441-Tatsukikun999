@@ -4,7 +4,7 @@ import cors from 'cors'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { body, query, validationResult } from 'express-validator'
-const {User} = require("./app")
+
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
@@ -35,7 +35,7 @@ app.post('/register',
 
     const { username, password, firstname, lastname, balance } = req.body
     try{
-      jwt.create({username,password,firstname,lastname,balance})
+      req.create({username,password,firstname,lastname,balance})
       res.json({message: "Register successfully"})
     }catch(error){
       res.status(400).json({message: "Username is already in used"});
@@ -47,7 +47,7 @@ app.get('/balance',
     const token = req.query.token as string
     try {
       const { username } = jwt.verify(token, SECRET) as JWTPayload
-  
+      res.status(200).json({"name": username},{"balance": token})
     }
     catch (e) {
       //response in case of invalid token
@@ -66,8 +66,9 @@ app.post('/deposit',
       res.status(401).json({message: "Invalid token"})
     }
     else{
+      req.balance += req.amount
       res.status(200).json({message: "Deposit successfully"},
-      {deposit: 'balance+=amount'})
+      {deposit: req.balance})
     }
 
   })
@@ -80,8 +81,9 @@ app.post('/withdraw',
       res.status(401).json({message: "Invalid token"})
     }
     else{
-      res.status(200).json({message: "Deposit successfully"},
-      {deposit: 'balance-=amount'})
+      req.balance -= req.amount
+      res.status(200).json({message: "Withdraw successfully"},
+      {balance: req.balance})
     }
 
   })
@@ -89,14 +91,16 @@ app.post('/withdraw',
 app.delete('/reset', (req, res) => {
 
   //code your database reset here
-  
+  req.reset()
   return res.status(200).json({
     message: 'Reset database successfully'
   })
 })
 
 app.get('/me', (req, res) => {
-  
+  const {firstname,lastname,code,gpa} = req.body
+  req.create({firstname,lastname,code,gpa})
+  res.status(200).json({firstname: firstname},{lastname: lastname},{code: code},{gpa:gpa})
 })
 
 app.get('/demo', (req, res) => {
